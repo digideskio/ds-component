@@ -437,8 +437,6 @@ export enum ConfigStyleElementType {
   SELECT_RADIO = 'SELECT_RADIO',
 }
 
-export type RowValue = string | number | boolean;
-
 export interface MetricOptions {
   /**
    * The minimum number of metrics supported.
@@ -508,3 +506,29 @@ export interface TablesByType {
 }
 
 export type ParsedRowValue = string | number | boolean | ParsedImage;
+
+export type RowHeading = string;
+export type RowEntry = string | number | boolean;
+export type RowValue = RowHeading | RowEntry;
+
+export interface FieldsByConfigId {
+  [fieldId: string]: Field;
+}
+
+export type StyleTheme = any;
+export type StyleEntry = any;
+export type StyleValue = StyleTheme | StyleEntry;
+
+export interface StyleById {
+  [styleId: string]: StyleValue;
+}
+
+export interface TableFormat {
+  fields: FieldsByConfigId;
+  style: StyleById;
+  tables: {
+    [TableType.DEFAULT]: RowValue[][];
+    [TableType.COMPARISON]: RowValue[][];
+    [TableType.SUMMARY]: RowValue[][];
+  };
+}
