@@ -229,7 +229,7 @@ export const rowsByConfigId = (message: Message): TablesByType => {
  * }, 3000)
  * ```
  */
-export const subscribeToData = (
+export const subscribeToDataLegacy = (
   cb: (componentData: Message) => void
 ): (() => void) => {
   const onMessage = (message: PostMessage) => {

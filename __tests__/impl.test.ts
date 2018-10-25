@@ -23,12 +23,14 @@ const testDimensionFields = (numRequested: number): DS.Field[] => {
       name: 'dimensionField1Name',
       description: 'dimensionField1Description',
       type: DS.FieldType.TEXT,
+      concept: DS.ConceptType.DIMENSION,
     },
     {
       id: 'dimensionField2Id',
       name: 'dimensionField2Name',
       description: 'dimensionField2Description',
       type: DS.FieldType.BOOLEAN,
+      concept: DS.ConceptType.DIMENSION,
     },
   ];
   if (numRequested > fields.length) {
@@ -44,12 +46,14 @@ const testMetricFields = (numRequested: number): DS.Field[] => {
       name: 'metricField1Name',
       description: 'metricField1Description',
       type: DS.FieldType.NUMBER,
+      concept: DS.ConceptType.METRIC,
     },
     {
       id: 'metricField2Id',
       name: 'metricField2Name',
       description: 'metricField2Description',
       type: DS.FieldType.PERCENT,
+      concept: DS.ConceptType.METRIC,
     },
   ];
   if (numRequested > fields.length) {
@@ -191,7 +195,7 @@ test('parseImage one fields present', () => {
   expect(actual).toEqual(expected);
 });
 
-test('subscribeToData works', () => {
+test('subscribeToDataLegacy works', () => {
   const addEventListenerMock = jest.fn((event, cb) => {
     if (event === 'message') {
       cb({data: testMessage(1, 1)});
@@ -207,7 +211,7 @@ test('subscribeToData works', () => {
   window.parent.postMessage = postMessageMock;
   window.removeEventListener = removeEventListenerMock;
 
-  const unSub = sut.subscribeToData((actual) => {
+  const unSub = sut.subscribeToDataLegacy((actual) => {
     expect(actual).toBeTruthy();
   });
   unSub();
