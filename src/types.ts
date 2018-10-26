@@ -327,11 +327,11 @@ export enum ConfigDataElementType {
   /**
    * Renders a metric field element.
    */
-  METRIC = 'METRIC',
+  METRIC = 2,
   /**
    * Renders a dimension field element.
    */
-  DIMENSION = 'DIMENSION',
+  DIMENSION = 1,
   /**
    * Renders a sort field element.
    *
@@ -341,7 +341,7 @@ export enum ConfigDataElementType {
   /**
    * Renders a dropdown that affects the maximum number of results returned.
    */
-  MAX_RESULTS = 'MAX_RESULTS',
+  MAX_RESULTS = 3,
 }
 
 export type DataElementOptions =
@@ -354,17 +354,17 @@ export enum ConfigStyleElementType {
   /**
    * Renders a text input box.
    */
-  TEXTINPUT = 'TEXTINPUT',
+  TEXTINPUT = 1,
   /**
    * A single select dropdown.
    */
-  SELECT_SINGLE = 'SELECT_SINGLE',
+  SELECT_SINGLE = 2,
   /**
    * Renders a checkbox.
    *
    * Default value: `false`
    */
-  CHECKBOX = 'CHECKBOX',
+  CHECKBOX = 3,
   /**
    * Renders the font color selector.
    *
@@ -372,69 +372,69 @@ export enum ConfigStyleElementType {
    *
    * Default value: `"#000"`.
    */
-  FONT_COLOR = 'FONT_COLOR',
+  FONT_COLOR = 4,
   /**
    * Renders the font size selector.
    *
    * Default value: `"14px"`.
    */
-  FONT_SIZE = 'FONT_SIZE',
+  FONT_SIZE = 5,
   /**
    * Renders the font family selector.
    *
    * Default value: `""`
    */
-  FONT_FAMILY = 'FONT_FAMILY',
+  FONT_FAMILY = 6,
   /**
    * Renders a fill color selector.
    *
    * Acceptable default values: HEX color value.
    */
-  FILL_COLOR = 'FILL_COLOR',
+  FILL_COLOR = 7,
   /**
    * Renders a border color selector.
    *
    * Acceptable default values: HEX color value.
    */
-  BORDER_COLOR = 'BORDER_COLOR',
+  BORDER_COLOR = 8,
   /**
    * Renders an axis color selector.
    *
    * Acceptable default values: HEX color value.
    */
-  AXIS_COLOR = 'AXIS_COLOR',
+  AXIS_COLOR = 9,
   /**
    * Renders a grid color selector.
    *
    * Acceptable default values: HEX color value.
    */
-  GRID_COLOR = 'GRID_COLOR',
+  GRID_COLOR = 10,
   /**
    * Renders an opacity selector.
    */
-  OPACITY = 'OPACITY',
+  OPACITY = 11,
   /**
    * Renders a line weight picker.
    */
-  LINE_WEIGHT = 'LINE_WEIGHT',
+  LINE_WEIGHT = 12,
   /**
    * Renders a line style picker.
    *
    * Acceptable default values: `"solid"`, `"dashed"`, `"dotted"`, or `"double"`.
    */
-  LINE_STYLE = 'LINE_STYLE',
+  LINE_STYLE = 13,
   /**
    * Renders a border radius selector.
    */
-  BORDER_RADIUS = 'BORDER_RADIUS',
+  BORDER_RADIUS = 14,
   /**
    * Renders an interval selector.
    */
-  INTERVAL = 'INTERVAL',
+  INTERVAL = 15,
   /**
    * Renders a radio select with pre-defined values.
    */
-  SELECT_RADIO = 'SELECT_RADIO',
+  SELECT_RADIO = 16,
 }
 
 export interface MetricOptions {
