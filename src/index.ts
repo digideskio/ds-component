@@ -368,7 +368,7 @@ export const fieldsByConfigId = (message: Message): FieldsByConfigId => {
 
 const flattenStyle = (message: Message): StyleById => {
   const styleById: StyleById = {};
-  message.config.style.forEach((styleEntry: ConfigStyle) => {
+  (message.config.style || []).forEach((styleEntry: ConfigStyle) => {
     styleEntry.elements.forEach((configStyleElement: ConfigStyleElement) => {
       styleById[configStyleElement.id] = {
         value: configStyleElement.value,
