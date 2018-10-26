@@ -15,10 +15,17 @@
 */
 import * as parse from 'url-parse';
 import {
+  Config,
+  ConfigData,
   ConfigDataElement,
   ConfigDataElementType,
+  ConfigId,
+  ConfigStyle,
+  ConfigStyleElement,
+  ConfigStyleElementType,
   Field,
   FieldId,
+  FieldsByConfigId,
   FieldsById,
   FieldType,
   Message,
@@ -29,8 +36,13 @@ import {
   Row,
   RowByConfigId,
   RowValue,
+  StyleById,
+  SubscriptionsOptions,
   Table,
+  TableFormat,
   TablesByType,
+  TableTables,
+  TableTransform,
   TableType,
 } from './types';
 
@@ -235,6 +247,116 @@ export const subscribeToDataLegacy = (
   const onMessage = (message: PostMessage) => {
     if (message.data.type === MessageType.RENDER) {
       cb(message.data);
+    } else {
+      console.error(
+        `MessageType: ${
+          message.data.type
+        } is not supported by this version of the library.`
+      );
+    }
+  };
+  window.addEventListener('message', onMessage);
+  const componentId = getComponentId();
+  // Tell DataStudio that the viz is ready to get events.
+  window.parent.postMessage({componentId, type: 'vizReady'}, '*');
+  return () => window.removeEventListener('message', onMessage);
+};
+
+export const flattenConfigIdsViaWonkyReduce = (
+  message: Message
+): ConfigId[] => {
+  return message.config.data.reduce(
+    (acc: ConfigId[], configData: ConfigData): ConfigId[] => {
+      return acc.concat(
+        configData.elements.reduce(
+          (
+            innerAcc: ConfigId[],
+            configDataElement: ConfigDataElement
+          ): ConfigId[] => {
+            return innerAcc.concat(
+              configDataElement.value.map(() => configDataElement.id)
+            );
+          },
+          []
+        )
+      );
+    },
+    []
+  );
+};
+
+export const tableFormatTable = (message: Message): TableTables => {
+  const matchedUpConfigIds = flattenConfigIdsViaWonkyReduce(message);
+  const indexFields = fieldsById(message);
+  const thing: TableTables = {
+    [TableType.COMPARISON]: [],
+    [TableType.DEFAULT]: [],
+    [TableType.SUMMARY]: [],
+  };
+  return message.dataResponse.tables.reduce(
+    (acc: TableTables, table: Table) => {
+      const tableData: RowValue[][] = [matchedUpConfigIds, ...table.rows];
+      acc[table.id] = tableData;
+      return acc;
+    },
+    {
+      [TableType.COMPARISON]: [],
+      [TableType.DEFAULT]: [],
+      [TableType.SUMMARY]: [],
+    }
+  );
+};
+
+export const fieldsByConfigId = (message: Message): FieldsByConfigId => {
+  const fieldsByDSId = fieldsById(message);
+  return message.config.data.reduce(
+    (acc: FieldsByConfigId, configData: ConfigData): FieldsByConfigId => {
+      const partialFieldsBy: FieldsByConfigId = configData.elements.reduce(
+        (
+          innerAcc: FieldsByConfigId,
+          configDataElement: ConfigDataElement
+        ): FieldsByConfigId => {
+          innerAcc[configDataElement.id] = configDataElement.value.map(
+            (dsId: FieldId): Field => fieldsByDSId[dsId]
+          );
+          return innerAcc;
+        },
+        {}
+      );
+      return Object.assign({}, acc, partialFieldsBy);
+    },
+    {}
+  );
+};
+
+const flattenStyle = (message: Message): StyleById => {
+  const styleById: StyleById = {};
+  message.config.style.forEach((styleEntry: ConfigStyle) => {
+    styleEntry.elements.forEach((configStyleElement: ConfigStyleElement) => {
+      styleById[configStyleElement.id] = {
+        value: configStyleElement.value,
+        defaultValue: configStyleElement.defaultValue,
+      };
+    });
+  }, {});
+  return styleById;
+};
+
+export const tableTransform: TableTransform = (
+  message: Message
+): TableFormat => ({
+  tables: tableFormatTable(message),
+  fields: fieldsByConfigId(message),
+  style: flattenStyle(message),
+});
+
+export const subscribeToData = (
+  cb: (componentData: TableFormat) => void,
+  options: SubscriptionsOptions
+): (() => void) => {
+  const onMessage = (message: PostMessage) => {
+    if (message.data.type === MessageType.RENDER) {
+      cb(options.transform(message.data));
     } else {
       console.error(
         `MessageType: ${

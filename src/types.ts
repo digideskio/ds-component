@@ -512,7 +512,7 @@ export type RowEntry = string | number | boolean;
 export type RowValue = RowHeading | RowEntry;
 
 export interface FieldsByConfigId {
-  [fieldId: string]: Field;
+  [configId: string]: Field[];
 }
 
 export type StyleTheme = any;
@@ -523,12 +523,22 @@ export interface StyleById {
   [styleId: string]: StyleValue;
 }
 
+export interface TableTables {
+  [TableType.DEFAULT]: RowValue[][];
+  [TableType.COMPARISON]: RowValue[][];
+  [TableType.SUMMARY]: RowValue[][];
+}
+
 export interface TableFormat {
   fields: FieldsByConfigId;
   style: StyleById;
-  tables: {
-    [TableType.DEFAULT]: RowValue[][];
-    [TableType.COMPARISON]: RowValue[][];
-    [TableType.SUMMARY]: RowValue[][];
-  };
+  tables: TableTables;
+}
+
+export type TableTransform = (message: Message) => TableFormat;
+
+export type ConfigId = string;
+
+export interface SubscriptionsOptions {
+  transform: TableTransform;
 }

@@ -15,6 +15,16 @@
 */
 import * as sut from '../src/index';
 import * as DS from '../src/types';
+import {
+  tableTransform,
+  TableTransform,
+  TableTables,
+  TableFormat,
+  TableType,
+  FieldType,
+  ConceptType,
+  ConfigStyleElementType,
+} from '../src/index';
 
 const testDimensionFields = (numRequested: number): DS.Field[] => {
   const fields = [
@@ -103,7 +113,15 @@ const testMessage = (numDimensions: number, numMetrics: number): DS.Message => {
         {
           id: 'styleId',
           label: 'styleLabel',
-          elements: [],
+          elements: [
+            {
+              id: 'styleId1',
+              type: ConfigStyleElementType.FILL_COLOR,
+              label: 'This is a fill color label',
+              defaultValue: '13',
+              value: '12',
+            },
+          ],
         },
       ],
     },
@@ -216,4 +234,60 @@ test('subscribeToDataLegacy works', () => {
   });
   unSub();
   expect(removeEventListenerMock.mock.calls.length).toBeGreaterThan(0);
+});
+
+test('tableTransform works', () => {
+  const expected: TableFormat = {
+    fields: {
+      dimensions: [
+        {
+          id: 'dimensionField1Id',
+          name: 'dimensionField1Name',
+          description: 'dimensionField1Description',
+          type: FieldType.TEXT,
+          concept: ConceptType.DIMENSION,
+        },
+        {
+          id: 'dimensionField2Id',
+          name: 'dimensionField2Name',
+          description: 'dimensionField2Description',
+          type: FieldType.BOOLEAN,
+          concept: ConceptType.DIMENSION,
+        },
+      ],
+      metrics: [
+        {
+          id: 'metricField1Id',
+          name: 'metricField1Name',
+          description: 'metricField1Description',
+          type: FieldType.NUMBER,
+          concept: ConceptType.METRIC,
+        },
+        {
+          id: 'metricField2Id',
+          name: 'metricField2Name',
+          description: 'metricField2Description',
+          type: FieldType.PERCENT,
+          concept: ConceptType.METRIC,
+        },
+      ],
+    },
+    tables: {
+      [TableType.DEFAULT]: [
+        ['dimensions', 'dimensions', 'metrics', 'metrics'],
+        ['1', false, 1, 0.01],
+        ['2', true, 2, 0.02],
+      ],
+      [TableType.COMPARISON]: [],
+      [TableType.SUMMARY]: [],
+    },
+    style: {
+      styleId1: {
+        defaultValue: '13',
+        value: '12',
+      },
+    },
+  };
+  const actual = tableTransform(testMessage(2, 2));
+  expect(actual).toEqual(expected);
 });
