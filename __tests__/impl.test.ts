@@ -236,6 +236,34 @@ test('subscribeToDataLegacy works', () => {
   expect(removeEventListenerMock.mock.calls.length).toBeGreaterThan(0);
 });
 
+test('subscribeToData works', () => {
+  const message = testMessage(1, 1);
+  const addEventListenerMock = jest.fn((event, cb) => {
+    if (event === 'message') {
+      cb({data: message});
+    } else {
+      throw new Error('unsupported event type for testing');
+    }
+  });
+
+  const postMessageMock = jest.fn();
+  const removeEventListenerMock = jest.fn();
+
+  window.addEventListener = addEventListenerMock;
+  window.parent.postMessage = postMessageMock;
+  window.removeEventListener = removeEventListenerMock;
+
+  const options = {
+    transform: sut.tableTransform,
+  };
+  const myCb = (actual) => {
+    expect(actual).toEqual(sut.tableTransform(message));
+  };
+  const unSub = sut.subscribeToData(myCb, options);
+  unSub();
+  expect(removeEventListenerMock.mock.calls.length).toBeGreaterThan(0);
+});
+
 test('tableTransform works', () => {
   const expected: TableFormat = {
     fields: {
