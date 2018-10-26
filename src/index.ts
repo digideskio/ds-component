@@ -30,6 +30,9 @@ import {
   FieldType,
   Message,
   MessageType,
+  ObjectRow,
+  ObjectTables,
+  ObjectTransform,
   ParsedImage,
   ParsedRowValue,
   PostMessage,
@@ -285,6 +288,40 @@ export const flattenConfigIdsViaWonkyReduce = (
   );
 };
 
+export const objectFormatTable = (message: Message): ObjectTables => {
+  const matchedUpConfigIds = flattenConfigIdsViaWonkyReduce(message);
+  const indexFields = fieldsById(message);
+  const thing: ObjectTables = {
+    [TableType.COMPARISON]: [],
+    [TableType.DEFAULT]: [],
+    [TableType.SUMMARY]: [],
+  };
+  return message.dataResponse.tables.reduce(
+    (acc: ObjectTables, table: Table) => {
+      const objectRows: ObjectRow[] = [];
+      table.rows.forEach((row: Row) => {
+        const objectRow = zip2(row, matchedUpConfigIds).reduce(
+          (innerAcc: ObjectRow, [rowVal, configId]: [RowValue, ConfigId]) => {
+            innerAcc[configId]
+              ? innerAcc[configId].push(rowVal)
+              : (innerAcc[configId] = [rowVal]);
+            return innerAcc;
+          },
+          {}
+        );
+        objectRows.push(objectRow);
+      });
+      acc[table.id] = objectRows;
+      return acc;
+    },
+    {
+      [TableType.COMPARISON]: [],
+      [TableType.DEFAULT]: [],
+      [TableType.SUMMARY]: [],
+    }
+  );
+};
+
 export const tableFormatTable = (message: Message): TableTables => {
   const matchedUpConfigIds = flattenConfigIdsViaWonkyReduce(message);
   const indexFields = fieldsById(message);
@@ -350,9 +387,15 @@ export const tableTransform: TableTransform = (
   style: flattenStyle(message),
 });
 
-export const subscribeToData = (
-  cb: (componentData: TableFormat) => void,
-  options: SubscriptionsOptions
+export const objectTransform: ObjectTransform = (message: Message) => ({
+  tables: objectFormatTable(message),
+  fields: fieldsByConfigId(message),
+  style: flattenStyle(message),
+});
+
+export const subscribeToData = <T>(
+  cb: (componentData: T) => void,
+  options: SubscriptionsOptions<T>
 ): (() => void) => {
   const onMessage = (message: PostMessage) => {
     if (message.data.type === MessageType.RENDER) {

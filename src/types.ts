@@ -539,6 +539,24 @@ export type TableTransform = (message: Message) => TableFormat;
 
 export type ConfigId = string;
 
-export interface SubscriptionsOptions {
-  transform: TableTransform;
+export interface SubscriptionsOptions<T> {
+  transform: (message: Message) => T;
 }
+
+export interface ObjectRow {
+  [configId: string]: RowEntry[];
+}
+
+export interface ObjectTables {
+  [TableType.DEFAULT]: ObjectRow[];
+  [TableType.COMPARISON]: ObjectRow[][];
+  [TableType.SUMMARY]: ObjectRow[][];
+}
+
+export interface ObjectFormat {
+  fields: FieldsByConfigId;
+  style: StyleById;
+  tables: ObjectTables;
+}
+
+export type ObjectTransform = (message: Message) => ObjectFormat;
